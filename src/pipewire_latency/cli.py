@@ -70,10 +70,11 @@ def cmd_tune(args: argparse.Namespace) -> int:
 
 def cmd_restore(args: argparse.Namespace) -> int:
     path = _config_path(args.config)
+    existed = path.exists()
     target, backup = restore_config(path)
     if backup:
         print(f"restored {target} from {backup}")
-    elif target.exists():
+    elif existed:
         print(f"removed {target}")
     else:
         print(f"nothing to restore at {target}")
