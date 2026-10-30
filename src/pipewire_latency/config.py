@@ -17,7 +17,9 @@ def default_config_path() -> Path:
     override = os.environ.get("PIPEWIRE_LATENCY_CONFIG")
     if override:
         return Path(override).expanduser()
-    return Path.home() / ".config" / DEFAULT_RELATIVE
+    xdg = os.environ.get("XDG_CONFIG_HOME")
+    base = Path(xdg).expanduser() if xdg else Path.home() / ".config"
+    return base / DEFAULT_RELATIVE
 
 
 def render_config(profile: Profile) -> str:
@@ -58,8 +60,13 @@ def write_config(
             raise FileExistsError(
                 f"{target} already exists. Re-run with --force to replace it."
             )
-        stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+        stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
         backup = target.with_name(f"{target.name}.{stamp}.bak")
+        # Guard against two writes landing in the same microsecond.
+        counter = 0
+        while backup.exists():
+            counter += 1
+            backup = target.with_name(f"{target.name}.{stamp}.{counter}.bak")
         shutil.copy2(target, backup)
 
     target.parent.mkdir(parents=True, exist_ok=True)
