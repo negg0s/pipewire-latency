@@ -1,5 +1,8 @@
 # pipewire-latency
 
+[![CI](https://github.com/negg0s/pipewire-latency/actions/workflows/ci.yml/badge.svg)](https://github.com/negg0s/pipewire-latency/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 Small CLI to inspect and tune PipeWire buffer latency on Linux. It reads the active graph quantum and sample rate, reports buffer latency, and writes a drop-in config for a chosen profile.
 
 It does not require root, does not run a daemon, and does not replace `pw-top` or a real round-trip latency measurement. It reports graph buffer latency from quantum and sample rate.
