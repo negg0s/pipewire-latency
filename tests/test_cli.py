@@ -43,3 +43,14 @@ def test_tune_and_restore(monkeypatch, capsys, tmp_path):
     assert path.exists()
     assert cli.main(["restore", "--config", str(path)]) == 0
     assert not path.exists()
+
+
+def test_doctor_json(monkeypatch, capsys, tmp_path):
+    monkeypatch.setattr(cli, "collect_state", _state)
+    path = tmp_path / "99.conf"
+    code = cli.main(["doctor", "--config", str(path), "--json"])
+    assert code in (0, 1)
+    payload = json.loads(capsys.readouterr().out)
+    assert "checks" in payload
+    assert "failures" in payload
+    assert isinstance(payload["checks"], list)

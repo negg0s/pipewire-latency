@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import shutil
 import sys
 from pathlib import Path
@@ -107,11 +108,19 @@ def cmd_doctor(args: argparse.Namespace) -> int:
     checks.append(("config exists", path.exists(), "yes" if path.exists() else "no"))
     checks.append(("backups", True, str(len(list_backups(path)))))
 
-    failures = 0
+    failures = sum(1 for _, ok, _ in checks if not ok)
+
+    if getattr(args, "json", False):
+        payload = {
+            "checks": [{"name": name, "ok": ok, "detail": detail} for name, ok, detail in checks],
+            "failures": failures,
+            "warnings": list(state.warnings),
+        }
+        print(json.dumps(payload, indent=2))
+        return 1 if failures else 0
+
     for name, ok, detail in checks:
         mark = "ok" if ok else "fail"
-        if not ok:
-            failures += 1
         print(f"[{mark}] {name}: {detail}")
 
     if state.warnings:
@@ -157,6 +166,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     doctor = sub.add_parser("doctor", help="check commands, state, and config")
     doctor.add_argument("--config", help="override the drop-in path")
+    doctor.add_argument("--json", action="store_true", help="output check results as JSON")
     doctor.set_defaults(func=cmd_doctor)
 
     return parser
