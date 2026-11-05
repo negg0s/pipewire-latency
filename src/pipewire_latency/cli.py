@@ -82,6 +82,32 @@ def cmd_restore(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_profiles(args: argparse.Namespace) -> int:
+    data = []
+    for name in sorted(PROFILES):
+        p = PROFILES[name]
+        data.append({
+            "name": p.name,
+            "quantum": p.quantum,
+            "rate": p.rate,
+            "buffer_ms": round(p.buffer_ms, 3),
+            "min_quantum": p.min_quantum,
+            "max_quantum": p.max_quantum,
+            "description": p.description,
+        })
+    if args.json:
+        print(json.dumps(data, indent=2))
+        return 0
+    print(f"{'PROFILE':<12} {'QUANTUM':<8} {'RATE':<8} {'BUFFER ms':<10} DESCRIPTION")
+    print("-" * 65)
+    for item in data:
+        print(
+            f"{item['name']:<12} {item['quantum']:<8} {item['rate']:<8} "
+            f"{item['buffer_ms']:<10.3f} {item['description']}"
+        )
+    return 0
+
+
 def cmd_report(args: argparse.Namespace) -> int:
     state = collect_state()
     path = _config_path(args.config)
@@ -157,6 +183,10 @@ def build_parser() -> argparse.ArgumentParser:
     restore = sub.add_parser("restore", help="restore the newest backup or remove the drop-in")
     restore.add_argument("--config", help="override the drop-in path")
     restore.set_defaults(func=cmd_restore)
+
+    profiles = sub.add_parser("profiles", help="list latency tuning profiles and buffer math")
+    profiles.add_argument("--json", action="store_true", help="output profiles as JSON")
+    profiles.set_defaults(func=cmd_profiles)
 
     report = sub.add_parser("report", help="print a markdown report")
     report.add_argument("--profile", choices=sorted(PROFILES))

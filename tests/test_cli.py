@@ -54,3 +54,23 @@ def test_doctor_json(monkeypatch, capsys, tmp_path):
     assert "checks" in payload
     assert "failures" in payload
     assert isinstance(payload["checks"], list)
+
+
+def test_profiles_table(capsys):
+    assert cli.main(["profiles"]) == 0
+    out = capsys.readouterr().out
+    assert "gaming" in out
+    assert "balanced" in out
+    assert "pro-audio" in out
+
+
+def test_profiles_json(capsys):
+    assert cli.main(["profiles", "--json"]) == 0
+    payload = json.loads(capsys.readouterr().out)
+    assert isinstance(payload, list)
+    names = [p["name"] for p in payload]
+    assert "gaming" in names
+    assert "pro-audio" in names
+    gaming = next(p for p in payload if p["name"] == "gaming")
+    assert gaming["quantum"] == 64
+    assert gaming["buffer_ms"] == 1.333
