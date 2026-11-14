@@ -8,20 +8,25 @@ version = "0.1.0"
 description = "Inspect and tune PipeWire buffer latency on Linux"
 readme = "README.md"
 requires-python = ">=3.10"
-license = { text = "MIT" }
-authors = [{ name = "NEGG0" }]
+license = "MIT"
+authors = [{ name = "negg0s" }]
 keywords = ["pipewire", "linux", "audio", "latency", "gaming"]
 classifiers = [
     "Environment :: Console",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: POSIX :: Linux",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Multimedia :: Sound/Audio",
 ]
 dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/negg0s/pipewire-latency"
+Repository = "https://github.com/negg0s/pipewire-latency.git"
+Issues = "https://github.com/negg0s/pipewire-latency/issues"
 
 [project.optional-dependencies]
 dev = ["pytest>=8"]
