@@ -133,7 +133,12 @@ def collect_state() -> PipeWireState:
 
     quantum = meta_quantum or dump_quantum
     rate = meta_rate or dump_rate
-    source = "pw-metadata" if meta_quantum or meta_rate else "pw-dump"
+    if meta_quantum or meta_rate:
+        source = "pw-metadata"
+    elif dump_quantum or dump_rate or driver or nodes:
+        source = "pw-dump"
+    else:
+        source = "unknown"
 
     return PipeWireState(
         quantum=quantum,
