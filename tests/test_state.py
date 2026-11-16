@@ -57,3 +57,33 @@ def test_buffer_ms():
     assert state.buffer_ms is not None
     assert round(state.buffer_ms, 3) == 1.333
     assert state.is_complete is True
+
+
+def test_buffer_ms_invalid_values():
+    assert PipeWireState(quantum=0, rate=48000).buffer_ms is None
+    assert PipeWireState(quantum=-64, rate=48000).buffer_ms is None
+    assert PipeWireState(quantum=64, rate=0).buffer_ms is None
+    assert PipeWireState(quantum=64, rate=-48000).buffer_ms is None
+    assert PipeWireState(quantum=0, rate=0).buffer_ms is None
+    assert PipeWireState(quantum=-64, rate=-48000).buffer_ms is None
+    assert PipeWireState(quantum=None, rate=48000).buffer_ms is None
+    assert PipeWireState(quantum=64, rate=None).buffer_ms is None
+
+
+def test_report_with_none_buffer(tmp_path):
+    from pipewire_latency.report import render_info, render_json, render_report, state_payload
+
+    state = PipeWireState(quantum=0, rate=0)
+    assert state.buffer_ms is None
+
+    payload = state_payload(state)
+    assert payload["buffer_ms"] is None
+
+    json_str = render_json(state)
+    assert '"buffer_ms": null' in json_str
+
+    info_str = render_info(state)
+    assert "buffer  : unknown" in info_str
+
+    report_str = render_report(state, None, tmp_path / "99.conf")
+    assert "PipeWire latency report" in report_str

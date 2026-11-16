@@ -76,6 +76,8 @@ def write_config(
 
 def list_backups(path: Path | None = None) -> list[Path]:
     target = path or default_config_path()
+    if not target.parent.exists():
+        return []
     return sorted(target.parent.glob(f"{target.name}.*.bak"))
 
 
@@ -85,6 +87,7 @@ def restore_config(path: Path | None = None) -> tuple[Path, Path | None]:
     backups = list_backups(target)
     if backups:
         newest = backups[-1]
+        target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(newest, target)
         return target, newest
     if target.exists():

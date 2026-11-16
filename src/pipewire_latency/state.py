@@ -27,7 +27,12 @@ class PipeWireState:
     def buffer_ms(self) -> float | None:
         if self.quantum is None or self.rate is None:
             return None
-        return quantum_ms(self.quantum, self.rate)
+        if self.quantum <= 0 or self.rate <= 0:
+            return None
+        try:
+            return quantum_ms(self.quantum, self.rate)
+        except ValueError:
+            return None
 
     @property
     def is_complete(self) -> bool:

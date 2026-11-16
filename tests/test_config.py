@@ -90,3 +90,33 @@ def test_backup_names_are_unique(tmp_path):
     assert r1.backup is not None and r2.backup is not None
     assert r1.backup != r2.backup
     assert r1.backup.exists() and r2.backup.exists()
+
+
+def test_list_backups_nonexistent_parent(tmp_path):
+    missing_dir = tmp_path / "nested" / "nonexistent"
+    conf = missing_dir / "99-pipewire-latency.conf"
+    assert not missing_dir.exists()
+    assert list_backups(conf) == []
+
+
+def test_restore_config_nonexistent_parent(tmp_path):
+    missing_dir = tmp_path / "nested" / "nonexistent"
+    conf = missing_dir / "99-pipewire-latency.conf"
+    assert not missing_dir.exists()
+    target, backup = restore_config(conf)
+    assert target == conf
+    assert backup is None
+    assert not target.exists()
+
+
+def test_restore_config_creates_parent_if_needed(monkeypatch, tmp_path):
+    backup = tmp_path / "dummy.bak"
+    backup.write_text("content", encoding="utf-8")
+    target = tmp_path / "missing_subdir" / "target.conf"
+    assert not target.parent.exists()
+    monkeypatch.setattr("pipewire_latency.config.list_backups", lambda p: [backup])
+    res_target, res_backup = restore_config(target)
+    assert res_target == target
+    assert res_backup == backup
+    assert target.exists()
+    assert target.read_text(encoding="utf-8") == "content"
